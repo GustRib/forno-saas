@@ -1,0 +1,29 @@
+# Segredos locais
+.env.local
+.env.*.local
+**/.env.local
+
+# Backend
+/backend/vendor/
+/backend/var/
+/backend/.phpunit.cache/
+/backend/.php-cs-fixer.cache
+/backend/phpunit.xml
+/backend/public/bundles/
+
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/coverage/
+
+# Editor / SO
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Ferramentas locais do editor/assistente
+.claude/
+CLAUDE.md
+CLAUDE.local.md

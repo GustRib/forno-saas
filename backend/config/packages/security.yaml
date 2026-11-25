@@ -1,0 +1,43 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_users:
+            id: App\Identity\Infrastructure\Security\UserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler(/|$)|(_wdt|assets|build)/)
+            security: false
+        api:
+            pattern: ^/api/
+            lazy: true
+            provider: app_users
+            user_checker: App\Identity\Infrastructure\Security\UserChecker
+            json_login:
+                check_path: api_auth_login
+                username_path: email
+                password_path: password
+                success_handler: App\Identity\Presentation\Security\JsonLoginSuccessHandler
+                failure_handler: App\Identity\Presentation\Security\JsonLoginFailureHandler
+            login_throttling:
+                max_attempts: 5
+                interval: '1 minute'
+            logout:
+                path: api_auth_logout
+            entry_point: App\Identity\Presentation\Security\JsonAuthenticationEntryPoint
+
+    access_control:
+        - { path: ^/api/v1/health$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/(login|register)$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

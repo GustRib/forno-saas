@@ -1,0 +1,29 @@
+parameters:
+    forno.registration_enabled: '%env(bool:FORNO_REGISTRATION_ENABLED)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            bool $registrationEnabled: '%forno.registration_enabled%'
+            bool $debug: '%kernel.debug%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/*/Domain/Model/'
+
+    App\Shared\Infrastructure\Logging\RequestContextProcessor:
+        tags:
+            - { name: monolog.processor }
+
+    redis.connection:
+        class: Redis
+        factory: ['Symfony\Component\Cache\Adapter\RedisAdapter', 'createConnection']
+        arguments: ['%env(REDIS_URL)%', { lazy: true }]
+
+    App\Shared\Presentation\HealthController:
+        arguments:
+            $redis: '@redis.connection'

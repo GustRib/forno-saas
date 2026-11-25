@@ -1,0 +1,39 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    http_method_override: false
+    handle_all_throwables: true
+    trusted_proxies: '%env(default::TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port']
+
+    session:
+        cookie_secure: auto
+        cookie_samesite: lax
+        cookie_httponly: true
+        name: FORNOSESSID
+
+    php_errors:
+        log: true
+
+    # Regra de negócio violada (ex.: estoque insuficiente) é resposta esperada
+    # (4xx), não falha do sistema: não deve aparecer como CRITICAL nos logs.
+    exceptions:
+        App\Shared\Domain\DomainException:
+            log_level: info
+
+    rate_limiter:
+        registration:
+            policy: fixed_window
+            limit: 5
+            interval: '1 hour'
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file
+        # A suíte cadastra dezenas de padarias; o limite real é testado à parte.
+        rate_limiter:
+            registration:
+                policy: fixed_window
+                limit: 100000
+                interval: '1 hour'
